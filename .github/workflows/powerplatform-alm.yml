@@ -1,0 +1,30 @@
+name: Power Platform ALM
+
+on:
+  push:
+    branches:
+      - 'dev/*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Authenticate with Power Platform
+        uses: microsoft/powerplatform-actions@v0.4.4
+        with:
+          authenticationType: 'ServicePrincipal'
+          tenantId: ${{ secrets.TENANT_ID }}
+          clientId: ${{ secrets.CLIENT_ID }}
+          clientSecret: ${{ secrets.CLIENT_SECRET }}
+
+      - name: Export solution from dev environment
+        run: |
+          pac solution export --path ./solutions/PowerXform.zip --publisher-prefix tdl --solution-name PowerXform --target-version 1.0.0.0 --environment-url https://mayank1.crm.dynamics.com
+
+      - name: Import solution to main environment
+        run: |
+          pac solution import --path ./solutions/PowerXform.zip --environment-url https://org10300a3d.crm.dynamics.com
