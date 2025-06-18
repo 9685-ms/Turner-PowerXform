@@ -1,0 +1,31 @@
+name: Import to Main Environment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Power Platform CLI
+        run: |
+          dotnet tool install --global Microsoft.PowerApps.CLI.Tool
+
+      - name: Authenticate to Main Environment
+        run: |
+          pac auth clear
+          pac auth create --url https://org10300a3d.crm.dynamics.com \
+            --clientId ${{ secrets.CLIENT_ID }} \
+            --clientSecret ${{ secrets.CLIENT_SECRET }} \
+            --tenant ${{ secrets.TENANT_ID }}
+
+      - name: Import solution to Main Environment
+        run: |
+          ZIP_PATH=$(find solutions -name "*.zip" | head -n 1)
+          pac solution import --path "$ZIP_PATH"
