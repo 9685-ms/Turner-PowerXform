@@ -26,7 +26,7 @@ jobs:
     
     - name: Export solution from dev environment
       run: |
-        pac solution export --path ./solutions/PowerXform.zip --publisher-prefix tdl --solution-name PowerXform --target-version 1.0.0.0 --environment-url https://tdlproduct.crm.dynamics.com
+        pac solution export --path ./solutions/PowerXForm.zip --publisher-prefix tdl --solution-name PowerXForm --target-version 1.0.0.0 --environment-url https://tdlproduct.crm.dynamics.com
     
     - name: Commit and push exported solution to main branch
       run: |
@@ -37,15 +37,15 @@ jobs:
         mkdir -p ./solutions
         
         # Add the exported solution
-        git add ./solutions/PowerXform.zip
-        git commit -m "Exported PowerXform solution on $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+        git add ./solutions/PowerXForm.zip
+        git commit -m "Exported PowerXForm solution on $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
         
         # Switch to main branch and push solution
         git fetch origin main
         git checkout main
-        git checkout ${{ github.ref_name }} -- ./solutions/PowerXform.zip
-        git add ./solutions/PowerXform.zip
-        git commit -m "Import PowerXform solution from dev - $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+        git checkout ${{ github.ref_name }} -- ./solutions/PowerXForm.zip
+        git add ./solutions/PowerXForm.zip
+        git commit -m "Import PowerXForm solution from dev - $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
         git push origin main
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -58,6 +58,6 @@ jobs:
         client-payload: |
           {
             "run_number": "${{ github.run_number }}",
-            "solution_name": "PowerXform",
+            "solution_name": "PowerXForm",
             "export_branch": "${{ github.ref_name }}"
           }
