@@ -1,66 +1,54 @@
-name: Export PowerXForm from Dev and Push to Main
+name: Export and Unpack PowerXForm from Dev
 
 on:
   push:
-    branches:
-      - 'dev/*'
+    branches: [ 'dev/*' ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  export-solution:
-    runs-on: ubuntu-latest
+  export-from-dev:
+    runs-on: windows-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+        with:
+          lfs: true
 
-    - name: Install Power Platform CLI
-      uses: microsoft/powerplatform-cli@v1
+      - name: Who Am I (SPN Auth)
+        uses: microsoft/powerplatform-actions/who-am-i@v0
+        with:
+          authentication-type: 'SPN'
+          environment-url: 'https://tdlproduct.crm.dynamics.com/'
+          client-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}
 
-    - name: Authenticate with Power Platform (SPN)
-      run: |
-        pac auth clear
-        pac auth create --name DevEnv `
-          --clientId "${{ secrets.CLIENT_ID }}" `
-          --clientSecret "${{ secrets.CLIENT_SECRET }}" `
-          --tenant "${{ secrets.TENANT_ID }}" `
-          --url "https://tdlproduct.crm.dynamics.com"
+      - name: Export PowerXForm
+        uses: microsoft/powerplatform-actions/export-solution@v0
+        with:
+          authentication-type: 'SPN'
+          environment-url: 'https://tdlproduct.crm.dynamics.com/'
+          client-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          solution-name: PowerXForm
+          solution-output-file: out/exported/PowerXForm.zip
 
-    - name: Export PowerXForm Solution
-      run: |
-        mkdir -p ./solutions
-        pac solution export `
-          --name PowerXForm `
-          --path ./solutions/PowerXForm.zip `
-          --type Unmanaged `
-          --overwrite
+      - name: Unpack solution
+        uses: microsoft/powerplatform-actions/unpack-solution@v0
+        with:
+          solution-file: out/exported/PowerXForm.zip
+          solution-folder: out/solutions/PowerXForm
+          solution-type: 'Unmanaged'
+          overwrite-files: true
 
-    - name: Commit and push exported solution to main
-      run: |
-        git config --global user.email "actions@github.com"
-        git config --global user.name "GitHub Actions"
-
-        git add ./solutions/PowerXForm.zip
-        git commit -m "Exported PowerXForm solution from ${{ github.ref_name }} on $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
-
-        git fetch origin main
-        git checkout main
-        git checkout ${{ github.ref_name }} -- ./solutions/PowerXForm.zip
-
-        git add ./solutions/PowerXForm.zip
-        git commit -m "Promoted PowerXForm solution from ${{ github.ref_name }}" || echo "No changes to commit"
-        git push origin main
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Trigger import workflow on main
-      uses: peter-evans/repository-dispatch@v2
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        event-type: solution-exported
-        client-payload: |
-          {
-            "run_number": "${{ github.run_number }}",
-            "solution_name": "PowerXForm",
-            "export_branch": "${{ github.ref_name }}"
-          }
+      - name: Commit unpacked solution
+        uses: microsoft/powerplatform-actions/branch-solution@v0
+        with:
+          solution-folder: out/solutions/PowerXForm
+          solution-target-folder: solutions/PowerXForm
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          allow-empty-commit: true
