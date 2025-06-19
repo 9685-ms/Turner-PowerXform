@@ -1,36 +1,63 @@
+# .github/workflows/export-solution.yml
+# This file should be on the dev branch
 name: Export from Dev Environment
 
 on:
   push:
     branches:
       - 'dev/*'
+  workflow_dispatch:
 
 jobs:
   export-solution:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Authenticate with Power Platform
-        uses: microsoft/powerplatform-actions@v0.2.1
-        with:
-          authenticationType: 'ServicePrincipal'
-          tenantId: ${{ secrets.TENANT_ID }}
-          clientId: ${{ secrets.CLIENT_ID }}
-          clientSecret: ${{ secrets.CLIENT_SECRET }}
-
-      - name: Export solution from dev environment
-        run: |
-          pac solution export --path ./solutions/PowerXform.zip --publisher-prefix tdl --solution-name PowerXform --target-version 1.0.0.0 --environment-url https://tdlproduct.crm.dynamics.com
-
-      - name: Commit and push exported solution
-        run: |
-          git config --global user.email "actions@github.com"
-          git config --global user.name "GitHub Actions"
-          git add ./solutions/PowerXform.zip
-          git commit -m "Exported solution on $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Checkout repo
+      uses: actions/checkout@v3
+    
+    - name: Authenticate with Power Platform
+      uses: microsoft/powerplatform-actions@v2
+      with:
+        authenticationType: 'ServicePrincipal'
+        tenantId: ${{ secrets.TENANT_ID }}
+        clientId: ${{ secrets.CLIENT_ID }}
+        clientSecret: ${{ secrets.CLIENT_SECRET }}
+    
+    - name: Export solution from dev environment
+      run: |
+        pac solution export --path ./solutions/PowerXform.zip --publisher-prefix tdl --solution-name PowerXform --target-version 1.0.0.0 --environment-url https://tdlproduct.crm.dynamics.com
+    
+    - name: Commit and push exported solution to main branch
+      run: |
+        git config --global user.email "actions@github.com"
+        git config --global user.name "GitHub Actions"
+        
+        # Create solutions directory if it doesn't exist
+        mkdir -p ./solutions
+        
+        # Add the exported solution
+        git add ./solutions/PowerXform.zip
+        git commit -m "Exported PowerXform solution on $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+        
+        # Switch to main branch and push solution
+        git fetch origin main
+        git checkout main
+        git checkout ${{ github.ref_name }} -- ./solutions/PowerXform.zip
+        git add ./solutions/PowerXform.zip
+        git commit -m "Import PowerXform solution from dev - $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+        git push origin main
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Trigger import workflow on main
+      uses: peter-evans/repository-dispatch@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        event-type: solution-exported
+        client-payload: |
+          {
+            "run_number": "${{ github.run_number }}",
+            "solution_name": "PowerXform",
+            "export_branch": "${{ github.ref_name }}"
+          }
