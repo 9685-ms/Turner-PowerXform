@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: self-hosted
 
 
     steps:
@@ -19,9 +19,8 @@ jobs:
     run: |
       dotnet tool install --global Microsoft.PowerApps.CLI
       echo "$HOME/.dotnet/tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-
-
-    - name: Export Solution
+  
+   - name: Export Solution
       uses: microsoft/powerplatform-actions/export-solution@v1
       with:
         environment-url: 'https://mayank1.crm.dynamics.com'
