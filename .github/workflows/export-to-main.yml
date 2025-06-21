@@ -19,7 +19,7 @@ jobs:
       with:
         environment-url: 'https://mayank1.crm.dynamics.com'
         tenant-id: ${{ secrets.TENANT_ID }}
-        client-id: ${{ secrets.CLIENT_ID }}
+        app-id: ${{ secrets.CLIENT_ID }}
         client-secret: ${{ secrets.CLIENT_SECRET }}
         solution-name: 'My App'
         solution-output-file: 'MyApp.zip'
@@ -38,7 +38,7 @@ jobs:
       with:
         environment-url: 'https://mayank1.crm.dynamics.com'
         tenant-id: ${{ secrets.TENANT_ID }}
-        client-id: ${{ secrets.CLIENT_ID }}
+        app-id: ${{ secrets.CLIENT_ID }}
         client-secret: ${{ secrets.CLIENT_SECRET }}
 
     - name: Prepare solution changes for check-in into source control
