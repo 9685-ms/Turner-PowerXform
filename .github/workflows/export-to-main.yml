@@ -1,17 +1,11 @@
-name: Export and Unpack Power Platform Solution
-
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-
 jobs:
   build:
     runs-on: windows-latest
     steps:
-    - name: Clean temp folder
-      run: Remove-Item -Path $env:TEMP\* -Recurse -Force
+    - name: Clean temp folder (ignore errors)
+      run: |
+        Get-ChildItem -Path $env:TEMP -Recurse -Force -ErrorAction SilentlyContinue | 
+        Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
       shell: powershell
 
     - name: Install Power Platform CLI globally
