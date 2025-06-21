@@ -1,34 +1,29 @@
+name: Export and Unpack Power Platform Solution
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
 jobs:
   build:
     runs-on: windows-latest
+
     steps:
-    - name: Clean temp folder (ignore errors)
-      run: |
-        Get-ChildItem -Path $env:TEMP -Recurse -Force -ErrorAction SilentlyContinue | 
-        Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
-      shell: powershell
+    - name: Install Power Platform Tools
+      uses: microsoft/powerplatform-actions/actions-install@v1
 
-    - name: Install Power Platform CLI globally
-      run: |
-        dotnet tool uninstall -g Microsoft.PowerApps.CLI || echo "Not installed"
-        dotnet tool install -g Microsoft.PowerApps.CLI --version 1.43.6
-      shell: powershell
-
-    - name: Check pac CLI version and path
-      run: |
-        pac --version
-        Get-Command pac
-      shell: powershell
-
-    - name: Create output directory
-      run: mkdir out
-      shell: powershell
-
-    - name: Export Solution CLI (manual)
-      run: |
-        pac auth create --url https://mayank1.crm.dynamics.com --name default --tenant ${{ secrets.TENANT_ID }} --applicationId ${{ secrets.CLIENT_ID }} --clientSecret ${{ secrets.CLIENT_SECRET }}
-        pac solution export --name "My App" --path "out/MyApp.zip" --publisherPrefix "yourPublisherPrefix"
-      shell: powershell
+    - name: Export Solution
+      uses: microsoft/powerplatform-actions/export-solution@v1
+      with:
+        environment-url: 'https://mayank1.crm.dynamics.com'
+        tenant-id: ${{ secrets.TENANT_ID }}
+        app-id: ${{ secrets.CLIENT_ID }}
+        client-secret: ${{ secrets.CLIENT_SECRET }}
+        solution-name: 'My App'
+        solution-output-file: 'MyApp.zip'
+        working-directory: 'out'
 
     - name: Unpack Solution
       uses: microsoft/powerplatform-actions/unpack-solution@v1
