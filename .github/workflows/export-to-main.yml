@@ -1,3 +1,11 @@
+name: Export and Unpack Power Platform Solution
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
 jobs:
   build:
     runs-on: self-hosted
