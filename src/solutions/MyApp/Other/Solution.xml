@@ -80,7 +80,20 @@
     <RootComponents>
       <RootComponent type="1" schemaName="tdl_details" behavior="0" />
       <RootComponent type="1" schemaName="tdl_employe" behavior="0" />
+      <RootComponent type="62" schemaName="tdl_App" behavior="0" />
+      <RootComponent type="80" schemaName="tdl_App" behavior="0" />
     </RootComponents>
-    <MissingDependencies />
+    <MissingDependencies>
+      <MissingDependency>
+        <Required type="61" schemaName="msdyn_/Images/AppModule_Default_Icon.png" displayName="msdyn_/Images/AppModule_Default_Icon.png" solution="AppModuleWebResources (2.5)" />
+        <Dependent type="80" schemaName="tdl_App" displayName="App" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="SettingDefinition" displayName="AppChannel" solution="msdyn_AppFrameworkInfraExtensions (1.0.0.14)" id.uniquename="AppChannel">
+          <package appName="PowerAppsAppFramework Package" version="1.0.0.19">PowerAppsAppFramework_Anchor (1.0.0.19)</package>
+        </Required>
+        <Dependent type="AppSetting" displayName="parentappmoduleid.uniquename=tdl_App,settingdefinitionid.uniquename=AppChannel" id.parentappmoduleid.uniquename="tdl_App" id.settingdefinitionid.uniquename="AppChannel" />
+      </MissingDependency>
+    </MissingDependencies>
   </SolutionManifest>
 </ImportExportXml>
