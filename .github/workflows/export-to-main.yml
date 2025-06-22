@@ -11,9 +11,7 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    - name: Install Power Platform Tools
-      uses: microsoft/powerplatform-actions/actions-install@v1
-
+    # Removed Install Power Platform Tools step
 
     - name: Export Solution
       uses: microsoft/powerplatform-actions/export-solution@v1
