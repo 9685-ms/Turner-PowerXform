@@ -1,9 +1,8 @@
-name: Export and Unpack Only Changed Power Platform Solutions
+name: Export Only Changed Solutions
 
 on:
   push:
-    branches:
-      - dev
+    branches: [dev]
   workflow_dispatch:
 
 jobs:
@@ -11,75 +10,49 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout Code
       uses: actions/checkout@v2
 
-    - name: Install Power Platform Tools
+    - name: Install Power Platform CLI
       uses: microsoft/powerplatform-actions/actions-install@v1
 
     - name: Detect Changed Solutions
       id: detect_changes
       shell: bash
       run: |
-          git fetch origin main --depth=1
-          git diff --name-only origin/main...HEAD |
+        git fetch origin main --depth=1
+        git diff --name-only origin/main...HEAD |
           grep '^src/solutions/' |
           awk -F/ '{ print $3 }' |
           sort -u > changed_solutions.txt
 
-          if [[ -s changed_solutions.txt ]]; then
-            echo "Changed solutions:"
-            cat changed_solutions.txt
-            echo "changed=$(cat changed_solutions.txt | tr '\n' ' ')" >> $GITHUB_OUTPUT
-          else
-            echo "No changes detected in solutions."
-            echo "changed=" >> $GITHUB_OUTPUT
-            exit 0    # Explicitly succeed when no changes detected
-          fi
+        if [[ -s changed_solutions.txt ]]; then
+          echo "Detected changes:"
+          cat changed_solutions.txt
+          echo "changed_solutions=$(cat changed_solutions.txt | paste -sd ',' -)" >> $GITHUB_OUTPUT
+        else
+          echo "No changes detected."
+          echo "changed_solutions=" >> $GITHUB_OUTPUT
 
-    - name: Export and Unpack Solutions
-      if: steps.detect_changes.outputs.changed != ''
-      shell: bash
-      env:
-        ENV_URL: 'https://mayank1.crm.dynamics.com'
-        CLIENT_ID: ${{ secrets.CLIENT_ID }}
-        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-        TENANT_ID: ${{ secrets.TENANT_ID }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        for solution in ${{ steps.detect_changes.outputs.changed }}; do
-          echo "=== Exporting $solution ==="
+    - name: Set Changed List
+      run: echo "Changed solutions: ${{ steps.detect_changes.outputs.changed_solutions }}"
 
-          echo "::group::Export $solution"
-          gh workflow run microsoft/powerplatform-actions/export-solution@v1 \
-            --field environment-url=$ENV_URL \
-            --field tenant-id=$TENANT_ID \
-            --field app-id=$CLIENT_ID \
-            --field client-secret=$CLIENT_SECRET \
-            --field solution-name=$solution \
-            --field solution-output-file=out/$solution.zip
-          echo "::endgroup::"
+    - name: Export Solution: MyApp
+      if: contains(steps.detect_changes.outputs.changed_solutions, 'MyApp')
+      uses: microsoft/powerplatform-actions/export-solution@v1
+      with:
+        environment-url: 'https://mayank1.crm.dynamics.com'
+        tenant-id: ${{ secrets.TENANT_ID }}
+        app-id: ${{ secrets.CLIENT_ID }}
+        client-secret: ${{ secrets.CLIENT_SECRET }}
+        solution-name: 'MyApp'
+        solution-output-file: 'out/MyApp.zip'
 
-          echo "::group::Unpack $solution"
-          gh workflow run microsoft/powerplatform-actions/unpack-solution@v1 \
-            --field solution-file=out/$solution.zip \
-            --field solution-folder=out/solutions/$solution \
-            --field solution-type=Unmanaged \
-            --field overwrite-files=true
-          echo "::endgroup::"
-
-          echo "::group::Publish $solution"
-          gh workflow run microsoft/powerplatform-actions/publish-solution@v1 \
-            --field environment-url=$ENV_URL \
-            --field tenant-id=$TENANT_ID \
-            --field app-id=$CLIENT_ID \
-            --field client-secret=$CLIENT_SECRET
-          echo "::endgroup::"
-
-          echo "::group::Stage $solution"
-          gh workflow run microsoft/powerplatform-actions/branch-solution@v1 \
-            --field solution-folder=out/solutions/$solution \
-            --field solution-target-folder=src/solutions/$solution \
-            --field repo-token=$GITHUB_TOKEN
-          echo "::endgroup::"
-        done
+    - name: Unpack Solution: MyApp
+      if: contains(steps.detect_changes.outputs.changed_solutions, 'MyApp')
+      uses: microsoft/powerplatform-actions/unpack-solution@v1
+      with:
+        solution-file: 'out/MyApp.zip'
+        solution-folder: 'src/solutions/MyApp'
+        solution-type: 'Unmanaged'
+        overwrite-files: true
