@@ -1,0 +1,39 @@
+name: Import and Publish Power Platform Solution
+
+on:
+  workflow_dispatch:
+    inputs:
+      solution-folder:
+        description: 'Folder of unpacked solution'
+        required: true
+        default: 'src/solutions/MyApp'
+
+jobs:
+  import-publish:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install Power Platform Tools
+      uses: microsoft/powerplatform-actions/actions-install@v1
+
+    - name: Import Solution
+      uses: microsoft/powerplatform-actions/import-solution@v1
+      with:
+        environment-url: 'https://org54c415c4.crm.dynamics.com'
+        tenant-id: ${{ secrets.TENANT_ID }}
+        app-id: ${{ secrets.CLIENT_ID }}
+        client-secret: ${{ secrets.CLIENT_SECRET }}
+        solution-folder: ${{ github.event.inputs.solution-folder }}
+        publish-workflows: true
+        overwrite-unmanaged-customizations: true
+
+    - name: Publish All Customizations
+      uses: microsoft/powerplatform-actions/publish-solution@v1
+      with:
+        environment-url: 'https://org54c415c4.crm.dynamics.com'
+        tenant-id: ${{ secrets.TENANT_ID }}
+        app-id: ${{ secrets.CLIENT_ID }}
+        client-secret: ${{ secrets.CLIENT_SECRET }}
