@@ -11,9 +11,11 @@ jobs:
     runs-on: windows-latest
 
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
     - name: Install Power Platform Tools
       uses: microsoft/powerplatform-actions/actions-install@v1
-
 
     - name: Export Solution
       uses: microsoft/powerplatform-actions/export-solution@v1
@@ -22,15 +24,14 @@ jobs:
         tenant-id: ${{ secrets.TENANT_ID }}
         app-id: ${{ secrets.CLIENT_ID }}
         client-secret: ${{ secrets.CLIENT_SECRET }}
-        solution-name: 'My App'
-        solution-output-file: 'MyApp.zip'
-        working-directory: 'out'
+        solution-name: 'MyApp'
+        solution-output-file: 'out/MyApp.zip'
 
     - name: Unpack Solution
       uses: microsoft/powerplatform-actions/unpack-solution@v1
       with:
         solution-file: 'out/MyApp.zip'
-        solution-folder: 'out/solutions/My App'
+        solution-folder: 'out/solutions/MyApp'
         solution-type: 'Unmanaged'
         overwrite-files: true
 
@@ -45,6 +46,6 @@ jobs:
     - name: Prepare solution changes for check-in into source control
       uses: microsoft/powerplatform-actions/branch-solution@v1
       with:
-        solution-folder: 'out/solutions/My App'
-        solution-target-folder: 'src/solutions/My App'
+        solution-folder: 'out/solutions/MyApp'
+        solution-target-folder: 'src/solutions/MyApp'
         token: ${{ secrets.GITHUB_TOKEN }}
