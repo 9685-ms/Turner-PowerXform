@@ -78,14 +78,9 @@
       </Addresses>
     </Publisher>
     <RootComponents>
+      <RootComponent type="1" schemaName="tdl_details" behavior="0" />
       <RootComponent type="1" schemaName="tdl_employe" behavior="0" />
-      <RootComponent type="29" id="{1bd30bdf-624f-f011-877a-6045bdd85aca}" behavior="0" />
     </RootComponents>
-    <MissingDependencies>
-      <MissingDependency>
-        <Required type="connectionreference" displayName="tdl_sharedcommondataserviceforapps_6afe6" solution="Active" id.connectionreferencelogicalname="tdl_sharedcommondataserviceforapps_6afe6" />
-        <Dependent type="29" displayName="Button -&gt; Add a new row" id="{1bd30bdf-624f-f011-877a-6045bdd85aca}" />
-      </MissingDependency>
-    </MissingDependencies>
+    <MissingDependencies />
   </SolutionManifest>
 </ImportExportXml>
