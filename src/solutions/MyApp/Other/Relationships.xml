@@ -1,15 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <EntityRelationships xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <EntityRelationship Name="business_unit_tdl_contacts" />
   <EntityRelationship Name="business_unit_tdl_details" />
   <EntityRelationship Name="business_unit_tdl_employe" />
+  <EntityRelationship Name="lk_tdl_contacts_createdby" />
+  <EntityRelationship Name="lk_tdl_contacts_modifiedby" />
   <EntityRelationship Name="lk_tdl_details_createdby" />
   <EntityRelationship Name="lk_tdl_details_modifiedby" />
   <EntityRelationship Name="lk_tdl_employe_createdby" />
   <EntityRelationship Name="lk_tdl_employe_modifiedby" />
+  <EntityRelationship Name="owner_tdl_contacts" />
   <EntityRelationship Name="owner_tdl_details" />
   <EntityRelationship Name="owner_tdl_employe" />
+  <EntityRelationship Name="team_tdl_contacts" />
   <EntityRelationship Name="team_tdl_details" />
   <EntityRelationship Name="team_tdl_employe" />
+  <EntityRelationship Name="user_tdl_contacts" />
   <EntityRelationship Name="user_tdl_details" />
   <EntityRelationship Name="user_tdl_employe" />
 </EntityRelationships>
