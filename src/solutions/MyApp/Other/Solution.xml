@@ -78,6 +78,7 @@
       </Addresses>
     </Publisher>
     <RootComponents>
+      <RootComponent type="1" schemaName="tdl_contacts" behavior="0" />
       <RootComponent type="1" schemaName="tdl_details" behavior="0" />
       <RootComponent type="1" schemaName="tdl_employe" behavior="0" />
       <RootComponent type="62" schemaName="tdl_App" behavior="0" />
